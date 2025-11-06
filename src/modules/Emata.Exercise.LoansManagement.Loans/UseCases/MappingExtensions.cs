@@ -25,7 +25,8 @@ internal static class MappingExtensions
         {
             PercentageRate = loan.InterestRate.PercentageRate,
             Period = loan.InterestRate.Period
-        }
+        },
+        CreatedOn = loan.CreatedOn
     };
 
 }

@@ -1,6 +1,7 @@
 using System.Reflection;
 using Emata.Exercise.LoansManagement.Borrowers;
 using Emata.Exercise.LoansManagement.Loans;
+using Emata.Exercise.LoansManagement.Repayments;
 using Emata.Exercise.LoansManagement.Shared.Endpoints;
  
 using Scalar.AspNetCore;
@@ -25,7 +26,8 @@ builder.Host.UseDefaultServiceProvider(options =>
 // - https://dev.to/xoubaman/modular-monolith-3fg1
 builder.Services
     .AddBorrowersModule(builder.Configuration, [])
-    .AddLoansModule(builder.Configuration, []);
+    .AddLoansModule(builder.Configuration, [])
+    .AddRepaymentsModule(builder.Configuration, []);
 
 var app = builder.Build();
 
@@ -43,5 +45,6 @@ app.MapEndpoints();
 //migrate module databases
 await app.MigrateBorrowersDatabaseAsync();
 await app.MigrateLoansDatabaseAsync();
+await app.MigrateRepaymentsDatabaseAsync();
 
 app.Run();

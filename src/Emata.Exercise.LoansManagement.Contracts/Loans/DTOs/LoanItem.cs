@@ -17,4 +17,6 @@ public record class LoanItem
     public DurationDto? Duration { get; set; }
 
     public InterestRateDto InterestRate { get; set; } = new InterestRateDto();
+
+    public DateTime CreatedOn { get; set; }
 }

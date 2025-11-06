@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="../modules/Emata.Exercise.LoansManagement.Borrowers/Emata.Exercise.LoansManagement.Borrowers.csproj" />
     <ProjectReference Include="../modules/Emata.Exercise.LoansManagement.Loans/Emata.Exercise.LoansManagement.Loans.csproj" />
+    <ProjectReference Include="../modules/Emata.Exercise.LoansManagement.Repayments/Emata.Exercise.LoansManagement.Repayments.csproj" />
   </ItemGroup>
 
 </Project>
