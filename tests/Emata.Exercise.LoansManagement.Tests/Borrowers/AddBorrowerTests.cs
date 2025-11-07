@@ -96,4 +96,107 @@ public class AddBorrowerTests : IAsyncLifetime
 
         _testOutputHelper.WriteLine("Correctly failed to create borrower with non-existent partner. Status: {0}", response.StatusCode);
     }
+
+    [Fact]
+    public async Task AddBorrower_ShouldReturnBadRequest_WhenSurnameMissing()
+    {
+        // Arrange
+        var addBorrowerCommand = BorrowerFakers.AddBorrowerCommandFaker.Generate();
+        addBorrowerCommand = addBorrowerCommand with { PartnerId = _partner.Id, Surname = null };
+
+        // Act
+        var response = await _borrowersApi.AddBorrowerAsync(addBorrowerCommand);
+
+        // Assert
+        response.IsSuccessful.ShouldBeFalse();
+        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.BadRequest);
+
+        _testOutputHelper.WriteLine("Missing surname correctly resulted in BadRequest.");
+    }
+
+    [Fact]
+    public async Task AddBorrower_ShouldReturnBadRequest_WhenGivenNameMissing()
+    {
+        // Arrange
+        var addBorrowerCommand = BorrowerFakers.AddBorrowerCommandFaker.Generate();
+        addBorrowerCommand = addBorrowerCommand with { PartnerId = _partner.Id, GivenName = null };
+
+        // Act
+        var response = await _borrowersApi.AddBorrowerAsync(addBorrowerCommand);
+
+        // Assert
+        response.IsSuccessful.ShouldBeFalse();
+        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.BadRequest);
+
+        _testOutputHelper.WriteLine("Missing given name correctly resulted in BadRequest.");
+    }
+
+    [Fact]
+    public async Task AddBorrower_IdentificationNumber_MustBe14Characters_WhenProvided()
+    {
+        // Arrange - invalid length (13)
+        var invalid = BorrowerFakers.AddBorrowerCommandFaker.Generate();
+        invalid = invalid with { PartnerId = _partner.Id, IdentificationNumber = "1234567890123" }; // 13 chars
+
+        var invalidResp = await _borrowersApi.AddBorrowerAsync(invalid);
+        invalidResp.IsSuccessful.ShouldBeFalse();
+        invalidResp.StatusCode.ShouldBe(System.Net.HttpStatusCode.BadRequest);
+        _testOutputHelper.WriteLine("Identification number with 13 chars correctly rejected.");
+
+        // Arrange - valid length (14)
+        var valid = BorrowerFakers.AddBorrowerCommandFaker.Generate();
+        valid = valid with { PartnerId = _partner.Id, IdentificationNumber = "12345678901234" }; // 14 chars
+
+        var validResp = await _borrowersApi.AddBorrowerAsync(valid);
+        validResp.IsSuccessful.ShouldBeTrue();
+        validResp.Content.ShouldNotBeNull();
+        validResp.Content.IdentificationNumber.ShouldBe("12345678901234");
+        _testOutputHelper.WriteLine("Identification number with 14 chars accepted.");
+    }
+
+    [Fact]
+    public async Task AddBorrower_PhoneNumber_Validation_TenDigitsStartingWithZero()
+    {
+        // Arrange - invalid phone (doesn't start with 0)
+        var invalid = BorrowerFakers.AddBorrowerCommandFaker.Generate();
+        invalid = invalid with { PartnerId = _partner.Id, PhoneNumber = "1234567890" };
+
+        var invalidResp = await _borrowersApi.AddBorrowerAsync(invalid);
+        invalidResp.IsSuccessful.ShouldBeFalse();
+        invalidResp.StatusCode.ShouldBe(System.Net.HttpStatusCode.BadRequest);
+        _testOutputHelper.WriteLine("Invalid phone format correctly rejected.");
+
+        // Arrange - valid phone
+        var valid = BorrowerFakers.AddBorrowerCommandFaker.Generate();
+        valid = valid with { PartnerId = _partner.Id, PhoneNumber = "0712345678" };
+
+        var validResp = await _borrowersApi.AddBorrowerAsync(valid);
+        validResp.IsSuccessful.ShouldBeTrue();
+        validResp.Content.ShouldNotBeNull();
+        validResp.Content.PhoneNumber.ShouldBe("0712345678");
+        _testOutputHelper.WriteLine("Valid phone format accepted.");
+    }
+
+    [Fact]
+    public async Task AddBorrower_Email_Validation_WhenProvided()
+    {
+        // Arrange - invalid email
+        var invalid = BorrowerFakers.AddBorrowerCommandFaker.Generate();
+        invalid = invalid with { PartnerId = _partner.Id, Email = "not-an-email" };
+
+        var invalidResp = await _borrowersApi.AddBorrowerAsync(invalid);
+        invalidResp.IsSuccessful.ShouldBeFalse();
+        invalidResp.StatusCode.ShouldBe(System.Net.HttpStatusCode.BadRequest);
+        _testOutputHelper.WriteLine("Invalid email correctly rejected.");
+
+        // Arrange - valid email
+        var valid = BorrowerFakers.AddBorrowerCommandFaker.Generate();
+        valid = valid with { PartnerId = _partner.Id, Email = "john.doe@example.com" };
+
+        var validResp = await _borrowersApi.AddBorrowerAsync(valid);
+        validResp.IsSuccessful.ShouldBeTrue();
+        validResp.Content.ShouldNotBeNull();
+        validResp.Content.Email.ShouldBe("john.doe@example.com");
+        _testOutputHelper.WriteLine("Valid email accepted.");
+    }
 }

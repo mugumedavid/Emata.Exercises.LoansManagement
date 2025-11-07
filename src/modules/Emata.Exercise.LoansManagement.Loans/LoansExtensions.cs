@@ -3,6 +3,7 @@ using System.Windows.Input;
 using Emata.Exercise.LoansManagement.Contracts.Loans;
 using Emata.Exercise.LoansManagement.Contracts.Loans.DTOs;
 using Emata.Exercise.LoansManagement.Loans.Infrastructure.Data;
+using Emata.Exercise.LoansManagement.Loans.Presentation;
 using Emata.Exercise.LoansManagement.Loans.UseCases;
 using Emata.Exercise.LoansManagement.Shared;
 using Emata.Exercise.LoansManagement.Shared.Endpoints;
@@ -38,7 +39,9 @@ public static class LoansExtensions
 
     // application services
     services.AddScoped<ICommandHandler<AddLoanCommand, LoanItem>, AddLoanCommandHandler>();
-    services.AddScoped<IQueryHandler<GetLoansQuery, List<LoanItem>>, GetLoansQueryHandler>();
+    services.AddScoped<IQueryHandler<GetLoansQuery, List<LoanItemDetails>>, GetLoansQueryHandler>();
+    services.AddScoped<IQueryHandler<GetLoanByIdQuery, LoanItem?>, GetLoanByIdQueryHandler>();
+    services.AddScoped<ILoanService, LoanService>();
 
     //register endpoints...
     services.AddEndpoints(typeof(LoansExtensions).Assembly);

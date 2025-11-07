@@ -2,7 +2,7 @@ using Emata.Exercise.LoansManagement.Contracts.Loans.DTOs;
 
 namespace Emata.Exercise.LoansManagement.Contracts.Loans;
 
-public record GetLoansQuery : IQuery<List<LoanItem>>
+public record GetLoansQuery : IQuery<List<LoanItemDetails>>
 {
     public Guid[]? BorrowerIds { get; set; }
     public decimal? MinLoanAmount { get; set; }

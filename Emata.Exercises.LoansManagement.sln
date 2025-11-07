@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emata.Exercise.LoansManagem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emata.Exercise.LoansManagement.Tests", "tests\Emata.Exercise.LoansManagement.Tests\Emata.Exercise.LoansManagement.Tests.csproj", "{BDB3E24A-D70A-48D0-8CEA-8A57DDB352C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emata.Exercise.LoansManagement.Repayments", "src\modules\Emata.Exercise.LoansManagement.Repayments\Emata.Exercise.LoansManagement.Repayments.csproj", "{EDCE7262-901F-4108-B597-CB34E9466E3C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{BDB3E24A-D70A-48D0-8CEA-8A57DDB352C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDB3E24A-D70A-48D0-8CEA-8A57DDB352C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDB3E24A-D70A-48D0-8CEA-8A57DDB352C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDCE7262-901F-4108-B597-CB34E9466E3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDCE7262-901F-4108-B597-CB34E9466E3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDCE7262-901F-4108-B597-CB34E9466E3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDCE7262-901F-4108-B597-CB34E9466E3C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,5 +69,6 @@ Global
 		{A8DB6EE3-9A51-4C7E-941C-050F96C704BA} = {2FEF6C32-E80A-42C0-84BF-E51021A6F2D5}
 		{CFEDDB7F-AB8E-470F-BAD1-13B37D65F908} = {2FEF6C32-E80A-42C0-84BF-E51021A6F2D5}
 		{BDB3E24A-D70A-48D0-8CEA-8A57DDB352C7} = {DA6ED7E3-7779-4E2A-81EF-90EF5B81FD17}
+		{EDCE7262-901F-4108-B597-CB34E9466E3C} = {C6C96AA3-CF03-3DD7-E9FD-2F70034C12DA}
 	EndGlobalSection
 EndGlobal

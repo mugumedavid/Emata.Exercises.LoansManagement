@@ -77,7 +77,7 @@ public class AddLoanTests : IAsyncLifetime
         // Arrange
         var addLoanCommand = LoanFakers.AddLoanCommandFaker.Generate();
         addLoanCommand.BorrowerId = _borrower.Id;
-        addLoanCommand.LoanAmount = 1; // Minimum amount
+        addLoanCommand.LoanAmount = 100_000m; // Minimum amount
 
         // Act
         var response = await _loansApi.AddLoanAsync(addLoanCommand);
@@ -85,7 +85,7 @@ public class AddLoanTests : IAsyncLifetime
         // Assert
         response.IsSuccessful.ShouldBeTrue();
         response.Content.ShouldNotBeNull();
-        response.Content.LoanAmount.ShouldBe(1);
+        response.Content.LoanAmount.ShouldBe(100_000m);
 
         _testOutputHelper.WriteLine("Created Loan with minimum amount: {0}", response.Content.Id);
     }
@@ -136,7 +136,7 @@ public class AddLoanTests : IAsyncLifetime
         var addLoanCommand = new AddLoanCommand
         {
             BorrowerId = _borrower.Id,
-            LoanAmount = 5000,
+            LoanAmount = 200_000m,
             IssueDate = DateOnly.FromDateTime(DateTime.Now),
             Reference = null,
             Reason = null,
@@ -170,5 +170,33 @@ public class AddLoanTests : IAsyncLifetime
         response.IsSuccessful.ShouldBeFalse();
 
         _testOutputHelper.WriteLine("Correctly failed to create loan for non-existent borrower. Status: {0}", response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddLoan_MinimumAmount_EdgeValues_ShouldEnforceMinimum()
+    {
+        // Arrange - just below minimum (should fail)
+        var belowMinimum = LoanFakers.AddLoanCommandFaker.Generate();
+        belowMinimum.BorrowerId = _borrower.Id;
+        belowMinimum.LoanAmount = 100_000m - 1m; // 99,999
+
+        var belowResp = await _loansApi.AddLoanAsync(belowMinimum);
+
+        // Assert - below minimum must be rejected
+        belowResp.IsSuccessful.ShouldBeFalse();
+        _testOutputHelper.WriteLine("Loan with amount {0} was correctly rejected (below minimum). Status: {1}", belowMinimum.LoanAmount, belowResp.StatusCode);
+
+        // Arrange - just above minimum (should pass)
+        var aboveMinimum = LoanFakers.AddLoanCommandFaker.Generate();
+        aboveMinimum.BorrowerId = _borrower.Id;
+        aboveMinimum.LoanAmount = 100_000m + 1m; // 100,001
+
+        var aboveResp = await _loansApi.AddLoanAsync(aboveMinimum);
+
+        // Assert - above minimum must be accepted
+        aboveResp.IsSuccessful.ShouldBeTrue();
+        aboveResp.Content.ShouldNotBeNull();
+        aboveResp.Content.LoanAmount.ShouldBe(100_000m + 1m);
+        _testOutputHelper.WriteLine("Loan with amount {0} was created successfully. Id: {1}", aboveMinimum.LoanAmount, aboveResp.Content.Id);
     }
 }

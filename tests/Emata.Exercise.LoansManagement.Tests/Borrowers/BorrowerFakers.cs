@@ -20,8 +20,8 @@ public static class BorrowerFakers
             GivenName = faker.Name.FirstName(),
             Gender = faker.PickRandom<Gender>(),
             DateOfBirth = DateOnly.FromDateTime(faker.Date.Past(50, DateTime.Now.AddYears(-18))),
-            IdentificationNumber = faker.Random.AlphaNumeric(10),
-            PhoneNumber = faker.Phone.PhoneNumber(),
+            IdentificationNumber = faker.Random.AlphaNumeric(14),
+            PhoneNumber = faker.Random.Replace("0#########"),
             Email = faker.Internet.Email(),
             Town = faker.Address.City(),
             PartnerId = Guid.NewGuid()

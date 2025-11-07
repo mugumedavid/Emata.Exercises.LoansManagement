@@ -33,6 +33,7 @@ A modular monolith is structured with:
 |--------|---------|----------------|
 | **Borrowers Module** | Manages borrower and partner information, including their personal details and addresses | `Borrower`, `Partner`, `Address` entities; BorrowersDbContext |
 | **Loans Module** | Handles loan operations, tracking loan amounts, interest rates, durations, and relationships to borrowers | `Loan` entity with `InterestRate` and `Duration`; LoansDbContext |
+| **Repayments Module** | Handles operations related to payments of loans | `Payment` entity; PaymentsDbContext |
 | **Shared** | Contains reusable infrastructure code and utilities used by other modules (not a dedicated business module) | `IEndpoints` interface, extension methods, common utilities |
 
 ## Communication Patterns

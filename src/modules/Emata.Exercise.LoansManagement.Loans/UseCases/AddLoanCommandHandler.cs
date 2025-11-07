@@ -1,4 +1,5 @@
 using Emata.Exercise.LoansManagement.Contracts.Borrowers;
+using Emata.Exercise.LoansManagement.Contracts.Exceptions;
 using Emata.Exercise.LoansManagement.Contracts.Loans.DTOs;
 using Emata.Exercise.LoansManagement.Loans.Domain;
 using Emata.Exercise.LoansManagement.Loans.Infrastructure.Data;
@@ -25,12 +26,22 @@ internal class AddLoanCommandHandler : ICommandHandler<AddLoanCommand, LoanItem>
     public async Task<LoanItem> Handle(AddLoanCommand request, CancellationToken cancellationToken = default)
     {
         // Check borrower exists
-    var borrower = await _borrowerQueryService.GetBorrowerByIdAsync(request.BorrowerId, cancellationToken);
+        var borrower = await _borrowerQueryService.GetBorrowerByIdAsync(request.BorrowerId, cancellationToken);
 
         if (borrower is null)
         {
             _logger.LogWarning("Borrower {BorrowerId} not found when trying to create a loan", request.BorrowerId);
-            throw new Exception($"Borrower with ID {request.BorrowerId} not found.");
+            throw new LoansManagementNotFoundException($"Borrower with ID {request.BorrowerId} not found.");
+        }
+
+        if (request.LoanAmount < 100_000m)
+        {
+            throw new LoansManagementValueException($"Loan amount must be at least UGX 100,000.");
+        }
+
+        if (request.IssueDate > DateOnly.FromDateTime(DateTime.UtcNow))
+        {
+            throw new LoansManagementValueException($"Issue date cannot be later than today.");
         }
 
         _logger.LogInformation("Creating loan for borrower {BorrowerId}", request.BorrowerId);

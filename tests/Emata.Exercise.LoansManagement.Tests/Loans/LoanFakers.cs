@@ -11,7 +11,7 @@ public static class LoanFakers
         .CustomInstantiator(faker => new AddLoanCommand()
         {
             BorrowerId = Guid.NewGuid(),
-            LoanAmount = faker.Finance.Amount(1000, 100000),
+            LoanAmount = faker.Finance.Amount(100000, 1000000),
             IssueDate = DateOnly.FromDateTime(faker.Date.Between(DateTime.Now.AddYears(-2), DateTime.Now)),
             Reference = faker.Random.AlphaNumeric(10),
             Reason = faker.PickRandom("Business", "Education", "Medical", "Home", "Personal"),

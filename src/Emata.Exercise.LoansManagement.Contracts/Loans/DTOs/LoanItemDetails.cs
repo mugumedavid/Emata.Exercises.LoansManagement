@@ -1,6 +1,8 @@
+using Emata.Exercise.LoansManagement.Contracts.Repayments.DTOs;
+
 namespace Emata.Exercise.LoansManagement.Contracts.Loans.DTOs;
 
-public record class LoanItem
+public record class LoanItemDetails : BalanceSummary
 {
     public Guid Id { get; set; }
 
