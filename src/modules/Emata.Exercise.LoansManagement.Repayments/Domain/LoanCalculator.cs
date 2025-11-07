@@ -1,10 +1,21 @@
-﻿using Emata.Exercise.LoansManagement.Contracts.Loans.DTOs;
+﻿using Emata.Exercise.LoansManagement.Contracts.Loans;
+using Emata.Exercise.LoansManagement.Contracts.Loans.DTOs;
 using Emata.Exercise.LoansManagement.Contracts.Repayments.DTOs;
+using Emata.Exercise.LoansManagement.Contracts.Shared;
+using Emata.Exercise.LoansManagement.Repayments.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emata.Exercise.LoansManagement.Repayments.Domain
 {
     public class LoanCalculator : ILoanCalculator
     {
+        private readonly PaymentsDbContext _dbContext;
+
+        public LoanCalculator(PaymentsDbContext dbContext, ILoanService loansQueryService)
+        {
+            _dbContext = dbContext;
+        }
+
         public decimal GetDurationInYears(DurationDto? duration)
         {
             if (duration is null)
@@ -28,8 +39,8 @@ namespace Emata.Exercise.LoansManagement.Repayments.Domain
             return principal * rate * time;
         }
 
-        public PaymentSummaryDTO CreatePaymentSummary(
-            Repayment payment, 
+        public PaymentSummaryDTO GetPaymentSummary(
+            Payment payment, 
             LoanItem loan, 
             decimal totalPrincipalPaid, 
             decimal totalInterestPaid, 
@@ -53,17 +64,38 @@ namespace Emata.Exercise.LoansManagement.Repayments.Domain
             };
         }
 
-        public BalanceSummary CreateBalanceSummary(
-            LoanItem loan,
-            decimal totalPrincipalPaid,
-            decimal totalInterestPaid,
-            decimal expectedInterest)
+        public async Task<LoanItemDetails> GetBalanceSummaryAsync(LoanItem loan)
         {
+            var totals = await _dbContext.Repayments
+                .Where(p => p.LoanId == loan.Id)
+                .GroupBy(p => p.LoanId)
+                .Select(g => new
+                {
+                    TotalPrincipalPaid = g.Sum(p => p.AmountToPrinciple),
+                    TotalInterestPaid = g.Sum(p => p.AmountToInterest)
+                })
+                .FirstOrDefaultAsync();
+
+            decimal rate = loan.InterestRate.PercentageRate / 100m;
+            decimal expectedInterest = CalculateExpectedInterest(loan.LoanAmount, rate, loan.Duration);
+
+            decimal totalPrincipalPaid = totals?.TotalPrincipalPaid ?? 0m;
+            decimal totalInterestPaid = totals?.TotalInterestPaid ?? 0m;
+
             decimal loanOutstanding = loan.LoanAmount - totalPrincipalPaid;
             decimal loanBalance = (loan.LoanAmount + expectedInterest) - (totalPrincipalPaid + totalInterestPaid);
 
-            return new BalanceSummary
+            return new LoanItemDetails
             {
+                Id = loan.Id,
+                BorrowerId = loan.BorrowerId,
+                LoanAmount = loan.LoanAmount,
+                IssueDate = loan.IssueDate,
+                Reference = loan.Reference,
+                Reason = loan.Reason,
+                Duration = loan.Duration,
+                InterestRate = loan.InterestRate,
+                CreatedOn = loan.CreatedOn,
                 LoanBalance = loanBalance,
                 LoanOutstanding = loanOutstanding,
                 TotalInterestReceived = totalInterestPaid

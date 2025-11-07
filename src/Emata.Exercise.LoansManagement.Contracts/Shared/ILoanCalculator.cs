@@ -1,8 +1,7 @@
 ﻿using Emata.Exercise.LoansManagement.Contracts.Loans.DTOs;
 using Emata.Exercise.LoansManagement.Contracts.Repayments.DTOs;
-using Emata.Exercise.LoansManagement.Repayments.Domain;
 
-namespace Emata.Exercise.LoansManagement.Repayments
+namespace Emata.Exercise.LoansManagement.Contracts.Shared
 {
     public interface ILoanCalculator
     {
@@ -10,7 +9,9 @@ namespace Emata.Exercise.LoansManagement.Repayments
         
         decimal CalculateExpectedInterest(decimal principal, decimal rate, DurationDto? duration);
 
-        PaymentSummaryDTO CreatePaymentSummary(Repayment payment, LoanItem loan, 
+        PaymentSummaryDTO GetPaymentSummary(Payment payment, LoanItem loan, 
             decimal totalPrincipalPaid, decimal totalInterestPaid, decimal expectedInterest);
+
+        Task<LoanItemDetails> GetBalanceSummaryAsync(LoanItem loan);
     }
 }

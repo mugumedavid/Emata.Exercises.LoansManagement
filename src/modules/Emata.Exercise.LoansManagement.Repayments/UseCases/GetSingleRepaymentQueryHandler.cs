@@ -1,6 +1,7 @@
 using Emata.Exercise.LoansManagement.Contracts.Loans;
 using Emata.Exercise.LoansManagement.Contracts.Repayments;
 using Emata.Exercise.LoansManagement.Contracts.Repayments.DTOs;
+using Emata.Exercise.LoansManagement.Contracts.Shared;
 using Emata.Exercise.LoansManagement.Repayments.Infrastructure.Data;
 using Emata.Exercise.LoansManagement.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -55,8 +56,8 @@ internal class GetSingleRepaymentQueryHandler : IQueryHandler<GetSingleRepayment
             totalPrincipalPaid += payment.AmountToPrinciple;
             totalInterestPaid += payment.AmountToInterest;
 
-            var summary = _loanCalculator.CreatePaymentSummary(
-                payment,
+            var summary = _loanCalculator.GetPaymentSummary(
+                payment.ToDTO(),
                 loan,
                 totalPrincipalPaid,
                 totalInterestPaid,

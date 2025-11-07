@@ -1,21 +1,24 @@
 using Emata.Exercise.LoansManagement.Contracts.Loans;
 using Emata.Exercise.LoansManagement.Contracts.Loans.DTOs;
+using Emata.Exercise.LoansManagement.Contracts.Shared;
 using Emata.Exercise.LoansManagement.Loans.Infrastructure.Data;
 using Emata.Exercise.LoansManagement.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emata.Exercise.LoansManagement.Loans.UseCases;
 
-internal class GetLoansQueryHandler : IQueryHandler<GetLoansQuery, List<LoanItem>>
+internal class GetLoansQueryHandler : IQueryHandler<GetLoansQuery, List<LoanItemDetails>>
 {
     private readonly LoansDbContext _dbContext;
+    private readonly ILoanCalculator _loanCalculator;
 
-    public GetLoansQueryHandler(LoansDbContext dbContext)
+    public GetLoansQueryHandler(LoansDbContext dbContext, ILoanCalculator loanCalculator)
     {
         _dbContext = dbContext;
+        _loanCalculator = loanCalculator;
     }
 
-    public async Task<List<LoanItem>> Handle(GetLoansQuery request, CancellationToken cancellationToken = default)
+    public async Task<List<LoanItemDetails>> Handle(GetLoansQuery request, CancellationToken cancellationToken = default)
     {
         var query = _dbContext.Loans.AsQueryable();
         if (request.BorrowerIds != null && request.BorrowerIds.Length != 0)
@@ -43,28 +46,16 @@ internal class GetLoansQueryHandler : IQueryHandler<GetLoansQuery, List<LoanItem
             query = query.Where(loan => loan.IssueDate <= request.EndDate.Value);
         }
 
-        var loans = await query.Select(loan => new LoanItem
+        var loanSummaries = new List<LoanItemDetails>();
+
+        foreach (var loan in query)
         {
-            Id = loan.Id,
-            BorrowerId = loan.BorrowerId,
-            LoanAmount = loan.LoanAmount,
-            IssueDate = loan.IssueDate,
-            Duration = loan.Duration != null ? new DurationDto
-            {
-                Length = loan.Duration.Length,
-                Period = loan.Duration.Period
-            } : null,
-            InterestRate = new InterestRateDto
-            {
-                PercentageRate = loan.InterestRate.PercentageRate,
-                Period = loan.InterestRate.Period
-            }
-        })
-        .OrderByDescending(l => l.IssueDate)
-        .Take(1000)
-        .ToListAsync(cancellationToken);
+            var summary = await _loanCalculator.GetBalanceSummaryAsync(loan.ToDTO());
+            loanSummaries.Add(summary);
+        }
 
-
-        return loans;
+        return loanSummaries
+            .OrderByDescending(l => l.IssueDate)
+            .ToList();
     }
 }

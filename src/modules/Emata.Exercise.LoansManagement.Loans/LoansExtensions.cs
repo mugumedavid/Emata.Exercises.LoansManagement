@@ -39,7 +39,7 @@ public static class LoansExtensions
 
     // application services
     services.AddScoped<ICommandHandler<AddLoanCommand, LoanItem>, AddLoanCommandHandler>();
-    services.AddScoped<IQueryHandler<GetLoansQuery, List<LoanItem>>, GetLoansQueryHandler>();
+    services.AddScoped<IQueryHandler<GetLoansQuery, List<LoanItemDetails>>, GetLoansQueryHandler>();
     services.AddScoped<IQueryHandler<GetLoanByIdQuery, LoanItem?>, GetLoanByIdQueryHandler>();
     services.AddScoped<ILoanService, LoanService>();
 

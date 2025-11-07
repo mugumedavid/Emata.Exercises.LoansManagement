@@ -2,6 +2,7 @@ using Emata.Exercise.LoansManagement.Contracts.Loans;
 using Emata.Exercise.LoansManagement.Contracts.Loans.DTOs;
 using Emata.Exercise.LoansManagement.Contracts.Repayments;
 using Emata.Exercise.LoansManagement.Contracts.Repayments.DTOs;
+using Emata.Exercise.LoansManagement.Contracts.Shared;
 using Emata.Exercise.LoansManagement.Repayments.Domain;
 using Emata.Exercise.LoansManagement.Repayments.Infrastructure.Data;
 using Emata.Exercise.LoansManagement.Shared;
@@ -72,8 +73,8 @@ internal class AddRepaymentCommandHandler : ICommandHandler<AddPaymentCommand, P
         decimal rate = loan.InterestRate.PercentageRate / 100m;
         decimal expectedInterest = _loanCalculator.CalculateExpectedInterest(loan.LoanAmount, rate, loan.Duration);
 
-        var summary = _loanCalculator.CreatePaymentSummary(
-            payment,
+        var summary = _loanCalculator.GetPaymentSummary(
+            payment.ToDTO(),
             loan,
             totalPrincipalPaid,
             totalInterestPaid,

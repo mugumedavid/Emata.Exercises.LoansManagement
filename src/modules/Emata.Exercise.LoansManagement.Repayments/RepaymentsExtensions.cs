@@ -1,7 +1,7 @@
 using System.Reflection;
-using Emata.Exercise.LoansManagement.Contracts.Loans;
 using Emata.Exercise.LoansManagement.Contracts.Repayments;
 using Emata.Exercise.LoansManagement.Contracts.Repayments.DTOs;
+using Emata.Exercise.LoansManagement.Contracts.Shared;
 using Emata.Exercise.LoansManagement.Repayments.Domain;
 using Emata.Exercise.LoansManagement.Repayments.Infrastructure.Data;
 using Emata.Exercise.LoansManagement.Repayments.UseCases;

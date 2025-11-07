@@ -1,5 +1,6 @@
 using Emata.Exercise.LoansManagement.Contracts.Loans;
 using Emata.Exercise.LoansManagement.Contracts.Loans.DTOs;
+using Emata.Exercise.LoansManagement.Contracts.Shared;
 using Emata.Exercise.LoansManagement.Loans.Infrastructure.Data;
 using Emata.Exercise.LoansManagement.Loans.UseCases;
 using Emata.Exercise.LoansManagement.Shared;
@@ -35,7 +36,7 @@ internal class LoansEndpoints : IEndpoints
 
         //query for loans
         app.MapGet($"", async (
-            [FromServices] IQueryHandler<GetLoansQuery, List<LoanItem>> handler,
+            [FromServices] IQueryHandler<GetLoansQuery, List<LoanItemDetails>> handler,
             [AsParameters] GetLoansQuery request) =>
         {
             var loans = await handler.Handle(request);
@@ -46,11 +47,12 @@ internal class LoansEndpoints : IEndpoints
         .WithDescription("Retrieves a list of all loans in the system.");
 
         //query for a specific loan
-        app.MapGet("{id:guid}", async (Guid id, LoansDbContext dbContext) =>
+        app.MapGet("{id:guid}", async (Guid id, LoansDbContext dbContext, ILoanCalculator loanCalculator) =>
         {
             var loan = await dbContext.Loans
                 .FirstOrDefaultAsync(l => l.Id == id);
-            return loan is not null ? Results.Ok(loan) : Results.NotFound();
+            var loanSummary = loan != null ? await loanCalculator.GetBalanceSummaryAsync(loan.ToDTO()) : null;
+            return loan is not null ? Results.Ok(loanSummary) : Results.NotFound();
         })
         .WithName("Get Loan By ID")
         .WithSummary("Get loan by ID")
