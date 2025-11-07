@@ -10,9 +10,9 @@ namespace Emata.Exercise.LoansManagement.Loans.UseCases;
 internal class GetLoansQueryHandler : IQueryHandler<GetLoansQuery, List<LoanItemDetails>>
 {
     private readonly LoansDbContext _dbContext;
-    private readonly ILoanCalculator _loanCalculator;
+    private readonly ILoanCalculatorService _loanCalculator;
 
-    public GetLoansQueryHandler(LoansDbContext dbContext, ILoanCalculator loanCalculator)
+    public GetLoansQueryHandler(LoansDbContext dbContext, ILoanCalculatorService loanCalculator)
     {
         _dbContext = dbContext;
         _loanCalculator = loanCalculator;
@@ -50,7 +50,7 @@ internal class GetLoansQueryHandler : IQueryHandler<GetLoansQuery, List<LoanItem
 
         foreach (var loan in query)
         {
-            var summary = await _loanCalculator.GetBalanceSummaryAsync(loan.ToDTO());
+            var summary = await _loanCalculator.GetBalanceSummaryAsync(loan.ToDTO(), cancellationToken);
             loanSummaries.Add(summary);
         }
 

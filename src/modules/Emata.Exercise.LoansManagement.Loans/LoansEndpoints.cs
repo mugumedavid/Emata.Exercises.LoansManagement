@@ -47,11 +47,11 @@ internal class LoansEndpoints : IEndpoints
         .WithDescription("Retrieves a list of all loans in the system.");
 
         //query for a specific loan
-        app.MapGet("{id:guid}", async (Guid id, LoansDbContext dbContext, ILoanCalculator loanCalculator) =>
+        app.MapGet("{id:guid}", async (Guid id, LoansDbContext dbContext, ILoanCalculatorService loanCalculator, CancellationToken cancellationToken) =>
         {
             var loan = await dbContext.Loans
                 .FirstOrDefaultAsync(l => l.Id == id);
-            var loanSummary = loan != null ? await loanCalculator.GetBalanceSummaryAsync(loan.ToDTO()) : null;
+            var loanSummary = loan != null ? await loanCalculator.GetBalanceSummaryAsync(loan.ToDTO(), cancellationToken) : null;
             return loan is not null ? Results.Ok(loanSummary) : Results.NotFound();
         })
         .WithName("Get Loan By ID")

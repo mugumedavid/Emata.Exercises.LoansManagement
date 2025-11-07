@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emata.Exercise.LoansManagement.Repayments.Domain
 {
-    public class LoanCalculator : ILoanCalculator
+    public class LoanCalculatorService : ILoanCalculatorService
     {
         private readonly PaymentsDbContext _dbContext;
 
-        public LoanCalculator(PaymentsDbContext dbContext, ILoanService loansQueryService)
+        public LoanCalculatorService(PaymentsDbContext dbContext, ILoanService loansQueryService)
         {
             _dbContext = dbContext;
         }
@@ -64,9 +64,10 @@ namespace Emata.Exercise.LoansManagement.Repayments.Domain
             };
         }
 
-        public async Task<LoanItemDetails> GetBalanceSummaryAsync(LoanItem loan)
+        public async Task<LoanItemDetails> GetBalanceSummaryAsync(LoanItem loan, CancellationToken cancellationToken)
         {
             var totals = await _dbContext.Repayments
+                .AsNoTracking()
                 .Where(p => p.LoanId == loan.Id)
                 .GroupBy(p => p.LoanId)
                 .Select(g => new
@@ -74,7 +75,7 @@ namespace Emata.Exercise.LoansManagement.Repayments.Domain
                     TotalPrincipalPaid = g.Sum(p => p.AmountToPrinciple),
                     TotalInterestPaid = g.Sum(p => p.AmountToInterest)
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             decimal rate = loan.InterestRate.PercentageRate / 100m;
             decimal expectedInterest = CalculateExpectedInterest(loan.LoanAmount, rate, loan.Duration);

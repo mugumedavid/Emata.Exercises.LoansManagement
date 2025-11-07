@@ -41,7 +41,7 @@ public static class RepaymentsExtensions
         services.AddScoped<ICommandHandler<AddPaymentCommand, PaymentSummaryDTO>, AddRepaymentCommandHandler>();
         services.AddScoped<IQueryHandler<GetRepaymentsQuery, List<PaymentSummaryDTO>>, GetRepaymentsQueryHandler>();
         services.AddScoped<IQueryHandler<GetSingleRepaymentQuery, PaymentSummaryDTO>, GetSingleRepaymentQueryHandler>();
-        services.AddScoped<ILoanCalculator, LoanCalculator>();
+        services.AddScoped<ILoanCalculatorService, LoanCalculatorService>();
 
         //register endpoints...
         services.AddEndpoints(typeof(RepaymentsExtensions).Assembly);

@@ -12,9 +12,9 @@ internal class GetSingleRepaymentQueryHandler : IQueryHandler<GetSingleRepayment
 {
     private readonly PaymentsDbContext _dbContext;
     private readonly ILoanService _loansQueryService;
-    private readonly ILoanCalculator _loanCalculator;
+    private readonly ILoanCalculatorService _loanCalculator;
 
-    public GetSingleRepaymentQueryHandler(PaymentsDbContext dbContext, ILoanService loansQueryService, ILoanCalculator loanCalculator)
+    public GetSingleRepaymentQueryHandler(PaymentsDbContext dbContext, ILoanService loansQueryService, ILoanCalculatorService loanCalculator)
     {
         _loansQueryService = loansQueryService;
         _dbContext = dbContext;
@@ -40,6 +40,7 @@ internal class GetSingleRepaymentQueryHandler : IQueryHandler<GetSingleRepayment
 
         // Get all payments on this loan
         var allPayments = await _dbContext.Repayments
+            .AsNoTracking()
             .Where(p => p.LoanId == loan.Id)
             .OrderBy(p => p.EntryDate)
             .Take(1000)

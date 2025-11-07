@@ -26,9 +26,10 @@ namespace Emata.Exercise.LoansManagement.Repayments.Presentation
             //add repayment
             app.MapPost($"", async (
                 [FromServices] ICommandHandler<AddPaymentCommand, PaymentSummaryDTO> handler,
-                [FromBody] AddPaymentCommand command) =>
+                [FromBody] AddPaymentCommand command,
+                CancellationToken cancellationToken) =>
             {
-                var repayment = await handler.Handle(command);
+                var repayment = await handler.Handle(command, cancellationToken);
                 return Results.Created($"/{Prefix}/{repayment.Id}", repayment);
             })
                 .WithSummary("Add Repayment")
@@ -37,10 +38,11 @@ namespace Emata.Exercise.LoansManagement.Repayments.Presentation
             //get repayments for a given loan
             app.MapGet($"loan/{{loanId:guid}}", async (
                 Guid loanId,
-                [FromServices] IQueryHandler<GetRepaymentsQuery, List<PaymentSummaryDTO>> handler) =>
+                [FromServices] IQueryHandler<GetRepaymentsQuery, List<PaymentSummaryDTO>> handler,
+                CancellationToken cancellationToken) =>
             {
                 var request = new GetRepaymentsQuery { LoanId = loanId };
-                var payments = await handler.Handle(request);
+                var payments = await handler.Handle(request, cancellationToken);
                 return Results.Ok(payments);
             })
                 .WithName("Get Repayments By Loan ID")
@@ -51,10 +53,11 @@ namespace Emata.Exercise.LoansManagement.Repayments.Presentation
             app.MapGet("{id:guid}", async (
                 Guid id, 
                 PaymentsDbContext dbContext,
-                [FromServices] IQueryHandler<GetSingleRepaymentQuery, PaymentSummaryDTO> handler) =>
+                [FromServices] IQueryHandler<GetSingleRepaymentQuery, PaymentSummaryDTO> handler,
+                CancellationToken cancellationToken) =>
             {
                 var request = new GetSingleRepaymentQuery { PaymentId = id };
-                var paymentSummary = await handler.Handle(request);
+                var paymentSummary = await handler.Handle(request, cancellationToken);
 
                 return paymentSummary is not null ? Results.Ok(paymentSummary) : Results.NotFound();
             })

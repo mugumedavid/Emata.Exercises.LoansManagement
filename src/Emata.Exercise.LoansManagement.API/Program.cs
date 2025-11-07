@@ -1,10 +1,11 @@
-using System.Reflection;
 using Emata.Exercise.LoansManagement.Borrowers;
+using Emata.Exercise.LoansManagement.Contracts.Exceptions;
 using Emata.Exercise.LoansManagement.Loans;
 using Emata.Exercise.LoansManagement.Repayments;
 using Emata.Exercise.LoansManagement.Shared.Endpoints;
- 
+using Microsoft.AspNetCore.Diagnostics;
 using Scalar.AspNetCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,42 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapEndpoints();
+
+app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        context.Response.ContentType = "application/json";
+
+        var ex = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        // Default
+        var status = StatusCodes.Status500InternalServerError;
+        var message = "An unexpected error occurred.";
+
+        // Map your custom exceptions
+        if (ex is LoansManagementNotFoundException)
+        {
+            status = StatusCodes.Status404NotFound;
+            message = ex.Message;
+        }
+        else if (ex is LoansManagementValueException)
+        {
+            status = StatusCodes.Status400BadRequest;
+            message = ex.Message;
+        }
+
+        context.Response.StatusCode = status;
+
+        await context.Response.WriteAsJsonAsync(new
+        {
+            error = status == 404 ? "Record not found"
+                  : status == 400 ? "Invalid data"
+                  : "Server error",
+            details = message
+        });
+    });
+});
 
 //migrate module databases
 await app.MigrateBorrowersDatabaseAsync();

@@ -3,7 +3,7 @@ using Emata.Exercise.LoansManagement.Contracts.Repayments.DTOs;
 
 namespace Emata.Exercise.LoansManagement.Contracts.Shared
 {
-    public interface ILoanCalculator
+    public interface ILoanCalculatorService
     {
         decimal GetDurationInYears(DurationDto? duration);
         
@@ -12,6 +12,6 @@ namespace Emata.Exercise.LoansManagement.Contracts.Shared
         PaymentSummaryDTO GetPaymentSummary(Payment payment, LoanItem loan, 
             decimal totalPrincipalPaid, decimal totalInterestPaid, decimal expectedInterest);
 
-        Task<LoanItemDetails> GetBalanceSummaryAsync(LoanItem loan);
+        Task<LoanItemDetails> GetBalanceSummaryAsync(LoanItem loan, CancellationToken cancellationToken);
     }
 }

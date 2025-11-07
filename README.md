@@ -29,6 +29,11 @@ Emata.Exercises.LoansManagement/
 │       │   ├── Presentation/                         # API endpoints
 │       │   └── UseCases/                             # Business logic
 │       │
+│       ├── Emata.Exercise.LoansManagement.Repayments/# Payments module
+│       │   ├── Domain/                               # Domain entities
+│       │   ├── Infrastructure/Data/                  # DbContext, migrations
+│       │   └── UseCases/                             # Business logic
+│       │
 │       ├── Emata.Exercise.LoansManagement.Loans/     # Loans module
 │       │   ├── Domain/                               # Domain entities
 │       │   ├── Infrastructure/Data/                  # DbContext, migrations

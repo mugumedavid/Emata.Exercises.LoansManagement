@@ -4,8 +4,11 @@ using Emata.Exercise.LoansManagement.Borrowers;
 using Emata.Exercise.LoansManagement.Borrowers.Infrastructure.Data;
 using Emata.Exercise.LoansManagement.Loans;
 using Emata.Exercise.LoansManagement.Loans.Infrastructure.Data;
+using Emata.Exercise.LoansManagement.Repayments;
+using Emata.Exercise.LoansManagement.Repayments.Infrastructure.Data;
 using Emata.Exercise.LoansManagement.Tests.Borrowers;
 using Emata.Exercise.LoansManagement.Tests.Loans;
+using Emata.Exercise.LoansManagement.Tests.Repayments;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,8 +23,10 @@ namespace Emata.Exercise.LoansManagement.Tests.Setup;
 
 public class ApiFactory : WebApplicationFactory<IApiMarker>, IAsyncLifetime
 {
-    public IBorrowersRefitApi BorrowersApi {get; private set;} = default!;
-    public ILoansRefitApi LoansApi {get; private set;} = default!;
+    public IBorrowersRefitApi BorrowersApi { get; private set; } = default!;
+    public ILoansRefitApi LoansApi { get; private set; } = default!;
+    public IRepaymentsRefitApi RepaymentsApi { get; private set; } = default!;
+
     private PostgreSqlContainer _postgresContainer = new PostgreSqlBuilder()
             .WithDatabase("LoansManagementTests")
             .WithUsername("postgres")
@@ -44,7 +49,8 @@ public class ApiFactory : WebApplicationFactory<IApiMarker>, IAsyncLifetime
     private static string[] DbSchemas =>
     [
         BorrowersExtensions.ModuleName,
-        LoansExtensions.ModuleName
+        LoansExtensions.ModuleName,
+        RepaymentsExtensions.ModuleName
     ];
 
     public async Task InitializeAsync()
@@ -57,6 +63,7 @@ public class ApiFactory : WebApplicationFactory<IApiMarker>, IAsyncLifetime
         HttpClient httpClient = CreateClient();
         BorrowersApi = RestService.For<IBorrowersRefitApi>(httpClient, DefaultRefitSettings);
         LoansApi = RestService.For<ILoansRefitApi>(httpClient, DefaultRefitSettings);
+        RepaymentsApi = RestService.For<IRepaymentsRefitApi>(httpClient, DefaultRefitSettings);
 
         //initialize database schemas
         await _dbConnection.OpenAsync();
@@ -89,6 +96,7 @@ public class ApiFactory : WebApplicationFactory<IApiMarker>, IAsyncLifetime
             //replace module db contexts with test container connection string
             ReplaceDbContext<BorrowersDbContext>(services, _connectionString);
             ReplaceDbContext<LoansDbContext>(services, _connectionString);
+            ReplaceDbContext<PaymentsDbContext>(services, _connectionString);
         });
 
         return base.CreateHost(builder);

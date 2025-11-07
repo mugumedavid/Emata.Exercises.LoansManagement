@@ -1,3 +1,4 @@
+using Emata.Exercise.LoansManagement.Contracts.Exceptions;
 using Emata.Exercise.LoansManagement.Contracts.Loans;
 using Emata.Exercise.LoansManagement.Contracts.Repayments;
 using Emata.Exercise.LoansManagement.Contracts.Repayments.DTOs;
@@ -12,9 +13,9 @@ internal class GetRepaymentsQueryHandler : IQueryHandler<GetRepaymentsQuery, Lis
 {
     private readonly PaymentsDbContext _dbContext;
     private readonly ILoanService _loansQueryService;
-    private readonly ILoanCalculator _loanCalculator;
+    private readonly ILoanCalculatorService _loanCalculator;
 
-    public GetRepaymentsQueryHandler(PaymentsDbContext dbContext, ILoanService loansQueryService, ILoanCalculator loanCalculator)
+    public GetRepaymentsQueryHandler(PaymentsDbContext dbContext, ILoanService loansQueryService, ILoanCalculatorService loanCalculator)
     {
         _loansQueryService = loansQueryService;
         _dbContext = dbContext;
@@ -28,12 +29,8 @@ internal class GetRepaymentsQueryHandler : IQueryHandler<GetRepaymentsQuery, Lis
             throw new Exception("Loan Id was not provided when retriving payment summaries.");
         }
 
-        var query = _dbContext.Repayments.Where(payment => payment.LoanId == request.LoanId.Value).AsQueryable();
-        var loan = await _loansQueryService.GetLoanByIdAsync(request.LoanId.Value, cancellationToken);
-        if (loan == null)
-        {
-            throw new Exception($"Loan with Id {request.LoanId} not found when retriving payment summaries.");
-        }
+        var loan = await _loansQueryService.GetLoanByIdAsync(request.LoanId.Value, cancellationToken) ?? 
+            throw new LoansManagementNotFoundException($"Loan with Id {request.LoanId} not found when retriving payment summaries.");
 
         // Compute expected interest (simple interest formula)
         decimal rate = loan.InterestRate.PercentageRate / 100m;
@@ -41,6 +38,7 @@ internal class GetRepaymentsQueryHandler : IQueryHandler<GetRepaymentsQuery, Lis
 
         // Get all payments for this loan
         var allPayments = await _dbContext.Repayments
+            .AsNoTracking()
             .Where(p => p.LoanId == request.LoanId.Value)
             .OrderBy(p => p.EntryDate)
             .Take(1000)

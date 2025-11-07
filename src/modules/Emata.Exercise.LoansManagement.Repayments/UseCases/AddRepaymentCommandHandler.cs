@@ -15,12 +15,12 @@ internal class AddRepaymentCommandHandler : ICommandHandler<AddPaymentCommand, P
 {
 
     private readonly ILogger<AddRepaymentCommandHandler> _logger;
-    private readonly ILoanCalculator _loanCalculator;
+    private readonly ILoanCalculatorService _loanCalculator;
     private readonly ILoanService _loansQueryService;
     private readonly PaymentsDbContext _paymentsDbContext;
 
 
-    public AddRepaymentCommandHandler(PaymentsDbContext dbContext, ILogger<AddRepaymentCommandHandler> logger, ILoanService loansQueryService, ILoanCalculator loanCalculator)
+    public AddRepaymentCommandHandler(PaymentsDbContext dbContext, ILogger<AddRepaymentCommandHandler> logger, ILoanService loansQueryService, ILoanCalculatorService loanCalculator)
     {
         _loansQueryService = loansQueryService;
         _paymentsDbContext = dbContext;
